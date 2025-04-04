@@ -16,13 +16,24 @@ Rewriting the C4 compiler in Rust, preserving its self-hosting capability and or
 ## 📂 Project Structure
 
 ```
-src/
-├── lexer.rs        # Tokenizer for C code
-├── parser.rs       # Parses tokens into AST
-├── vm.rs           # Virtual machine executing instructions
-├── ...
-tests/              # Unit tests
-examples/           # Sample C files for compilation
+c4_rust/
+├── Cargo.toml             # Rust project config
+├── README.md              # Project documentation
+├── src/
+│   ├── main.rs            # Entry point
+│   ├── lexer.rs           # Tokenizer for C code
+│   ├── parser.rs          # Parses tokens into AST
+│   ├── vm.rs              # Virtual machine executing instructions
+│   ├── ast.rs             # (Optional) Abstract Syntax Tree definitions
+│   └── utils.rs           # Common utilities
+├── examples/
+│   └── c4.c               # Original C4 code for testing
+├── tests/
+│   ├── lexer_tests.rs     # Unit tests for lexer
+│   ├── parser_tests.rs    # Unit tests for parser
+│   └── vm_tests.rs        # Unit tests for VM
+├── target/                # Build output (auto-generated)
+└── c4_rust_comparison.pdf # Comparison report
 ```
 
 ---
@@ -41,7 +52,7 @@ cargo build --release
 ### Run
 
 ```bash
-cargo run --release -- examples/hello_world.c
+cargo run --release -- examples/c4.c
 ```
 
 ### Test
