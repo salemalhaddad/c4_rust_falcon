@@ -68,8 +68,8 @@ cargo test
 ### Phase 1: Setup & Planning
 - [x] Create GitHub repo: `c4_rust_<team_name>`
 - [x] Setup `Cargo` project with `cargo init`
-- [ ] Add `.gitignore` (Rust template)
-- [ ] Upload `c4.c` to `examples/` for testing
+- [x] Add `.gitignore` (Rust template)
+- [x] Upload `c4.c` to `examples/` for testing
 - [ ] Divide responsibilities among team
 
 ### Phase 2: Component Translation
