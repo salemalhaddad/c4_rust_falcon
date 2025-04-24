@@ -48,7 +48,6 @@ pub enum AstNode {
 
 pub struct Vm {
     env: HashMap<String, Value>,
-    // Add stack, heap, etc. as needed
 }
 
 impl Vm {
