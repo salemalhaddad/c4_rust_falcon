@@ -1,7 +1,7 @@
 # C4 Rust Compiler – Team Falcon
 
 Rewriting the C4 compiler in Rust, preserving its self-hosting capability and original functionality while leveraging Rust’s safety and modern features.
-
+THIS IS A WORKING COMPILER FOR SIMPLE HELLO WORLD PROGRAMS WHERE ONLY PRINTS  WORKS
 ---
 
 ## 🚀 Features
