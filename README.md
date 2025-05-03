@@ -1,4 +1,4 @@
-# C4 Rust Compiler – Team Falcon
+# C4 Rust Compiler – Team Zubair
 
 Rewriting the C4 compiler in Rust, preserving its self-hosting capability and original functionality while leveraging Rust’s safety and modern features.
 THIS IS A WORKING COMPILER FOR SIMPLE HELLO WORLD PROGRAMS WHERE ONLY PRINTS  WORKS
@@ -16,24 +16,23 @@ THIS IS A WORKING COMPILER FOR SIMPLE HELLO WORLD PROGRAMS WHERE ONLY PRINTS  WO
 ## 📂 Project Structure
 
 ```
-c4_rust/
-├── Cargo.toml             # Rust project config
-├── README.md              # Project documentation
+c4-rust/
+├── Cargo.toml
 ├── src/
-│   ├── main.rs            # Entry point
-│   ├── lexer.rs           # Tokenizer for C code
-│   ├── parser.rs          # Parses tokens into AST
-│   ├── vm.rs              # Virtual machine executing instructions
-│   ├── ast.rs             # (Optional) Abstract Syntax Tree definitions
-│   └── utils.rs           # Common utilities
-├── examples/
-│   └── c4.c               # Original C4 code for testing
-├── tests/
-│   ├── lexer_tests.rs     # Unit tests for lexer
-│   ├── parser_tests.rs    # Unit tests for parser
-│   └── vm_tests.rs        # Unit tests for VM
-├── target/                # Build output (auto-generated)
-└── c4_rust_comparison.pdf # Comparison report
+│   ├── lexer.rs
+│   ├── parser/
+│   │   ├── mod.rs           # Public API: re-exports sub-modules
+│   │   ├── symbol_table.rs  # Symbol, Class, Type & scope management
+│   │   ├── types.rs         # Type enum and utilities
+│   │   ├── declaration.rs   # Parse globals, functions, variable declarations
+│   │   ├── expression.rs    # Precedence-climbing expression parser
+│   │   └── statement.rs     # Statement parser (if, while, return, compound)
+│   ├── codegen.rs
+│   ├── vm.rs
+│   └── main.rs
+└── tests/
+    ├── xxxx.c
+    └── xxxx.c
 ```
 
 ---
@@ -63,43 +62,6 @@ cargo test
 
 ---
 
-## ✅ To-Do List
-
-### Phase 1: Setup & Planning
-- [x] Create GitHub repo: `c4_rust_<team_name>`
-- [x] Setup `Cargo` project with `cargo init`
-- [x] Add `.gitignore` (Rust template)
-- [x] Upload `c4.c` to `examples/` for testing
-- [ ] Divide responsibilities among team
-
-### Phase 2: Component Translation
-- [ ] Implement `lexer.rs` using pattern matching and enums
-- [ ] Implement `parser.rs` with idiomatic AST structure
-- [ ] Implement `vm.rs` using safe memory management
-- [ ] Wire components in `main.rs`
-
-### Phase 3: Testing
-- [ ] Add unit tests using `#[test]` for each module
-- [ ] Achieve minimum 70% test coverage
-- [ ] Use `cargo test` consistently
-- [ ] Optional: Add performance benchmarks
-
-### Phase 4: Documentation
-- [ ] Use `///` comments for public functions and structs
-- [ ] Generate and review docs via `cargo doc`
-- [ ] Write `c4_rust_comparison.pdf`
-
-### Phase 5: Collaboration & Submission
-- [ ] Use branches + PRs for major changes
-- [ ] Ensure all members contribute to commits
-- [ ] Zip and submit as `c4_rust_submission_<team_name>.zip`
-
-### Bonus (Optional)
-- [ ] Implement enhanced error messages with line/column tracking
-- [ ] Add floating-point arithmetic support
-- [ ] Improve diagnostic outputs (tokens, AST, bytecode dump)
-
----
 
 ## 🧪 Examples
 
