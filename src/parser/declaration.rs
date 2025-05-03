@@ -5,7 +5,30 @@ impl<'a> Parser<'a> {
     pub fn parse_global_declaration(&mut self) -> Result<(), String> {
         println!("DEBUG: Parsing global declaration, current token: {:?}", self.lexer.peek_token());
 
-        // First, parse the type
+        // In the second pass, we might start with an identifier
+        if let Some(Token::Id(id)) = self.lexer.peek_token() {
+            println!("DEBUG: Found identifier: {}", id);
+            self.current_id = Some(id.clone());
+            self.lexer.next_token(); // Consume identifier
+
+            // If this is a known function, set its type from the symbol table
+            if let Some(symbol) = self.symbol_table.lookup(&id) {
+                self.current_type = Some(symbol.typ.clone());
+                self.current_class = Some(symbol.class.clone());
+
+                // Function declaration/definition
+                if let Some(Token::OpenParen) = self.lexer.peek_token() {
+                    self.parse_function_declaration()?;
+                } else {
+                    // Global variable declaration
+                    self.parse_global_variable()?;
+                }
+                return Ok(());
+            }
+        }
+
+        // If we didn't find an identifier or it wasn't in the symbol table,
+        // parse as a new declaration
         self.parse_type()?;
 
         println!("DEBUG: After parse_type, current token: {:?}", self.lexer.peek_token());
@@ -16,17 +39,10 @@ impl<'a> Parser<'a> {
             self.current_id = Some(id.clone());
             self.lexer.next_token(); // Consume identifier
 
-            // Determine if this is a function or variable declaration
-            let class = if let Some(Token::OpenParen) = self.lexer.peek_token() {
-                Class::Function
-            } else {
-                Class::Global
-            };
-
-            // Create symbol
+            // Create symbol for function or variable
             let symbol = Symbol {
                 name: id.clone(),
-                class,
+                class: Class::Function, // We'll update this if it's not a function
                 typ: self.current_type.clone().unwrap(),
                 val: 0,
                 offset: 0,
@@ -34,16 +50,17 @@ impl<'a> Parser<'a> {
 
             // Add to symbol table
             self.symbol_table.add_symbol(symbol)?;
-
-            // Parse the rest based on the class
-            if class == Class::Function {
-                self.parse_function_declaration()?;
-            } else {
-                self.parse_global_variable()?;
-            }
         } else {
             println!("DEBUG: Expected identifier but found: {:?}", self.lexer.peek_token());
             return Err("Expected identifier in declaration".to_string());
+        }
+
+        // Function declaration/definition
+        if let Some(Token::OpenParen) = self.lexer.peek_token() {
+            self.parse_function_declaration()?;
+        } else {
+            // Global variable declaration
+            self.parse_global_variable()?;
         }
 
         Ok(())
