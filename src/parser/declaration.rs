@@ -11,35 +11,34 @@ impl<'a> Parser<'a> {
             self.current_id = Some(id.clone());
             self.lexer.next_token(); // Consume identifier
             
-            // If this is a known function, set its type from the symbol table
+
             if let Some(symbol) = self.symbol_table.lookup(&id) {
                 self.current_type = Some(symbol.typ.clone());
                 self.current_class = Some(symbol.class.clone());
                 
-                // Function declaration/definition
+
                 if let Some(Token::OpenParen) = self.lexer.peek_token() {
                     self.parse_function_declaration()?;
                 } else {
-                    // Global variable declaration
+
                     self.parse_global_variable()?;
                 }
                 return Ok(());
             }
         }
         
-        // If we didn't find an identifier or it wasn't in the symbol table,
-        // parse as a new declaration
+
+
         self.parse_type()?;
         
         println!("DEBUG: After parse_type, current token: {:?}", self.lexer.peek_token());
         
-        // Parse declarator
+
         if let Some(Token::Id(id)) = self.lexer.peek_token() {
             println!("DEBUG: Found identifier: {}", id);
             self.current_id = Some(id.clone());
             self.lexer.next_token(); // Consume identifier
             
-            // Create symbol for function or variable
             let symbol = Symbol {
                 name: id.clone(),
                 class: Class::Function, // We'll update this if it's not a function
@@ -48,7 +47,6 @@ impl<'a> Parser<'a> {
                 offset: 0,
             };
             
-            // Add to symbol table
             self.symbol_table.add_symbol(symbol)?;
         } else {
             println!("DEBUG: Expected identifier but found: {:?}", self.lexer.peek_token());
@@ -59,7 +57,7 @@ impl<'a> Parser<'a> {
         if let Some(Token::OpenParen) = self.lexer.peek_token() {
             self.parse_function_declaration()?;
         } else {
-            // Global variable declaration
+   
             self.parse_global_variable()?;
         }
         
@@ -121,7 +119,7 @@ impl<'a> Parser<'a> {
             self.lexer.next_token(); // Consume '='
             
             // Parse initializer expression
-            // TODO: Implement expression parsing
+          
             
             // For now, just skip until semicolon
             while let Some(token) = self.lexer.peek_token() {
@@ -242,6 +240,5 @@ impl<'a> Parser<'a> {
         
         Ok(())
     }
-    
-    // These functions are already defined above, so we don't need to redefine them
+ 
 }
