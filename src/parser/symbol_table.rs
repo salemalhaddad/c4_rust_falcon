@@ -92,18 +92,18 @@ impl SymbolTable {
 
     pub fn add_symbol(&mut self, symbol: Symbol) -> Result<(), String> {
         let name = symbol.name.clone();
-        
+
         // Check if symbol already exists in current scope
         if self.lookup_current_scope(&name).is_some() {
             return Err(format!("Symbol '{}' already defined in current scope", name));
         }
-        
+
         // Add symbol to table and current scope
         self.symbols.insert(name.clone(), symbol);
         if let Some(scope) = self.scopes.last_mut() {
             scope.push(name);
         }
-        
+
         Ok(())
     }
 

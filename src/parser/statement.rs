@@ -10,11 +10,11 @@ impl<'a> Parser<'a> {
                     if self.second_pass {
                         // Skip type
                         self.lexer.next_token();
-                        
+
                         // Skip identifier
                         if let Some(Token::Id(_)) = self.lexer.peek_token() {
                             self.lexer.next_token();
-                            
+
                             // Skip initialization if present
                             if let Some(Token::Assign) = self.lexer.peek_token() {
                                 self.lexer.next_token(); // Skip =
@@ -22,7 +22,7 @@ impl<'a> Parser<'a> {
                                     self.lexer.next_token(); // Skip number
                                 }
                             }
-                            
+
                             // Skip semicolon
                             if let Some(Token::Semi) = self.lexer.peek_token() {
                                 self.lexer.next_token();
@@ -43,76 +43,76 @@ impl<'a> Parser<'a> {
             Err("Unexpected end of input while parsing statement".to_string())
         }
     }
-    
+
     // Parse if statement: if (expression) statement [else statement]
     pub fn parse_if_statement(&mut self) -> Result<(), String> {
         // Consume 'if'
         self.lexer.next_token();
-        
+
         // Expect '('
         if let Some(Token::OpenParen) = self.lexer.peek_token() {
             self.lexer.next_token();
         } else {
             return Err("Expected '(' after 'if'".to_string());
         }
-        
+
         // Parse condition
         self.parse_expression()?;
-        
+
         // Expect ')'
         if let Some(Token::CloseParen) = self.lexer.peek_token() {
             self.lexer.next_token();
         } else {
             return Err("Expected ')' after if condition".to_string());
         }
-        
+
         // Parse then-branch
         self.parse_statement()?;
-        
+
         // Parse else-branch if present
         if let Some(Token::Else) = self.lexer.peek_token() {
             self.lexer.next_token();
             self.parse_statement()?;
         }
-        
+
         Ok(())
     }
-    
+
     // Parse while statement: while (expression) statement
     pub fn parse_while_statement(&mut self) -> Result<(), String> {
         // Consume 'while'
         self.lexer.next_token();
-        
+
         // Expect '('
         if let Some(Token::OpenParen) = self.lexer.peek_token() {
             self.lexer.next_token();
         } else {
             return Err("Expected '(' after 'while'".to_string());
         }
-        
+
         // Parse condition
         self.parse_expression()?;
-        
+
         // Expect ')'
         if let Some(Token::CloseParen) = self.lexer.peek_token() {
             self.lexer.next_token();
         } else {
             return Err("Expected ')' after while condition".to_string());
         }
-        
+
         // Parse body
         self.parse_statement()?;
-        
+
         Ok(())
     }
-    
+
     // Parse return statement: return [expression];
     pub fn parse_return_statement(&mut self) -> Result<(), String> {
         println!("DEBUG: Entering parse_return_statement, current token: {:?}", self.lexer.peek_token());
         // Consume 'return'
         self.lexer.next_token();
         println!("DEBUG: After consuming 'return', current token: {:?}", self.lexer.peek_token());
-        
+
         // Parse return expression (if any)
         if self.lexer.peek_token() != Some(Token::Semi) {
             println!("DEBUG: Parsing return expression");
@@ -127,9 +127,9 @@ impl<'a> Parser<'a> {
                 self.parse_expression()?;
             }
         }
-        
+
         println!("DEBUG: After parsing return expression, current token: {:?}", self.lexer.peek_token());
-        
+
         // Expect ';'
         if let Some(Token::Semi) = self.lexer.peek_token() {
             println!("DEBUG: Found semicolon after return, consuming it");
@@ -141,42 +141,42 @@ impl<'a> Parser<'a> {
             Err(format!("Expected ';' after return statement, found: {:?}", self.lexer.peek_token()))
         }
     }
-    
+
     // Parse compound statement: { [statement]* }
     pub fn parse_compound_statement(&mut self) -> Result<(), String> {
         println!("DEBUG: Entering parse_compound_statement, current token: {:?}", self.lexer.peek_token());
-        
+
         // Expect '{'
         if let Some(Token::OpenBrace) = self.lexer.peek_token() {
             self.lexer.next_token();
         } else {
             return Err("Expected '{' at start of compound statement".to_string());
         }
-        
+
         // Enter new scope
         println!("DEBUG: Entered a new scope");
         self.symbol_table.enter_scope();
-        
+
         // Parse statements
         println!("DEBUG: Parsing statements in compound statement");
         while let Some(token) = self.lexer.peek_token() {
             if token == Token::CloseBrace {
                 break;
             }
-            
+
             println!("DEBUG: Processing token in compound statement: {:?}", token);
-            
+
             match token {
                 Token::Int | Token::CharType => {
                     println!("DEBUG: Parsing local declaration");
                     if self.second_pass {
                         // Skip type
                         self.lexer.next_token();
-                        
+
                         // Skip identifier
                         if let Some(Token::Id(_)) = self.lexer.peek_token() {
                             self.lexer.next_token();
-                            
+
                             // Skip initialization if present
                             if let Some(Token::Assign) = self.lexer.peek_token() {
                                 self.lexer.next_token(); // Skip =
@@ -184,7 +184,7 @@ impl<'a> Parser<'a> {
                                     self.lexer.next_token(); // Skip number
                                 }
                             }
-                            
+
                             // Skip semicolon
                             if let Some(Token::Semi) = self.lexer.peek_token() {
                                 self.lexer.next_token();
@@ -207,7 +207,7 @@ impl<'a> Parser<'a> {
                 },
             }
         }
-        
+
         // Expect '}'
         if let Some(Token::CloseBrace) = self.lexer.peek_token() {
             println!("DEBUG: Found closing brace, exiting compound statement");
@@ -215,32 +215,32 @@ impl<'a> Parser<'a> {
         } else {
             return Err("Expected '}' at end of compound statement".to_string());
         }
-        
+
         // Exit scope
         println!("DEBUG: Exited scope");
         self.symbol_table.exit_scope();
-        
+
         println!("DEBUG: Consumed closing brace, next token: {:?}", self.lexer.peek_token());
         Ok(())
     }
-    
+
     // Parse expression statement: [expression];
     pub fn parse_expression_statement(&mut self) -> Result<(), String> {
         println!("DEBUG: Entering parse_expression_statement, current token: {:?}", self.lexer.peek_token());
-        
+
         // Empty statement (just a semicolon)
         if let Some(Token::Semi) = self.lexer.peek_token() {
             println!("DEBUG: Empty statement (just a semicolon)");
             self.lexer.next_token();
             return Ok(());
         }
-        
+
         // Parse expression
         println!("DEBUG: Parsing expression in statement");
         match self.parse_expression() {
             Ok(_) => {
                 println!("DEBUG: After parsing expression, current token: {:?}", self.lexer.peek_token());
-                
+
                 // Expect ';'
                 match self.lexer.peek_token() {
                     Some(Token::Semi) => {
@@ -265,22 +265,22 @@ impl<'a> Parser<'a> {
             }
         }
     }
-    
+
     // Parse a local variable declaration
     pub fn parse_local_declaration(&mut self) -> Result<(), String> {
         println!("DEBUG: Entering parse_local_declaration, current token: {:?}", self.lexer.peek_token());
-        
+
         // Parse type specifier
         self.parse_type()?; // Using the public method from declaration.rs
         println!("DEBUG: After parse_type, current token: {:?}", self.lexer.peek_token());
-        
+
         // Parse declarator
         if let Some(Token::Id(id)) = self.lexer.peek_token() {
             let var_name = id.clone();
             println!("DEBUG: Found local variable name: {}", var_name);
             self.current_id = Some(var_name.clone()); // Set current_id for code generation
             self.lexer.next_token();
-            
+
             // Create symbol for local variable
             let symbol = Symbol {
                 name: var_name.clone(),
@@ -289,25 +289,25 @@ impl<'a> Parser<'a> {
                 val: 0,
                 offset: self.local_offset,
             };
-            
+
             // Update local offset for next variable
             self.local_offset += self.current_type.as_ref().unwrap().size();
-            
+
             // Add to symbol table
             println!("DEBUG: Adding local variable '{}' to symbol table", var_name);
             self.symbol_table.add_symbol(symbol)?;
-            
+
             // Handle initialization if present
             if let Some(Token::Assign) = self.lexer.peek_token() {
                 println!("DEBUG: Found initialization for local variable");
                 self.lexer.next_token(); // Consume '='
-                
+
                 // Parse initializer expression
                 if let Some(Token::Num(n)) = self.lexer.peek_token() {
                     println!("DEBUG: Initializing with numeric literal: {}", n);
                     self.current_value = n;
                     self.lexer.next_token();
-                    
+
                     // Store the value in the symbol table
                     self.symbol_table.update_symbol(&var_name, |symbol| {
                         symbol.val = n;
@@ -317,7 +317,7 @@ impl<'a> Parser<'a> {
                     self.parse_expression()?;
                 }
             }
-            
+
             // Expect semicolon
             if let Some(Token::Semi) = self.lexer.peek_token() {
                 println!("DEBUG: Found semicolon after local declaration");

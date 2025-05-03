@@ -5,7 +5,7 @@ pub enum Token {
     Id(String),
     Char(u8),
     Str(String),   // String literal
-    
+
     // Keywords
     Int,
     CharType, // Keyword for char type
@@ -17,7 +17,7 @@ pub enum Token {
     Continue,
     Enum,
     Sizeof,
-    
+
     // System calls
     Open,
     Read,
@@ -28,13 +28,13 @@ pub enum Token {
     Memset,
     Memcmp,
     Exit,
-    
+
     // Types
     Void,
-    
+
     // Special identifiers
     Main,
-    
+
     // Delimiters
     OpenParen,
     CloseParen,
@@ -42,7 +42,7 @@ pub enum Token {
     CloseBrace,
     Semi,
     Comma,
-    
+
     // Operators
     Add,
     Sub,
@@ -67,7 +67,7 @@ pub enum Token {
     Dec,     // --
     Cond,    // ?
     Brak,    // [
-    
+
     // Special
     Eof,
     Unknown(u8),
@@ -126,23 +126,55 @@ impl<'a> Lexer<'a> {
 
             match ch {
                 b'{' => {
-                    self.current_token = Some(Token::OpenBrace);
+                    return;
+                }
+                b'\'' | b'"' => {
+                    let mut value = String::new();
+                    let quote = ch;
+
+                    // Process characters until closing quote
+                    while let Some(c) = self.peek() {
+                        self.advance(); // Consume the character
+                        if c == quote {
+                            break;
+                        } else if c == b'\\' {
+                            if let Some(esc) = self.peek() {
+                                self.advance(); // Consume the escape character
+                                match esc {
+                                    b'n' => value.push('\n'),
+                                    b't' => value.push('\t'),
+                                    b'r' => value.push('\r'),
+                                    b'\'' => value.push('\''),
+                                    b'"' => value.push('"'),
+                                    b'\\' => value.push('\\'),
+                                    _ => value.push(esc as char),
+                                }
+                            }
+                        } else {
+                            value.push(c as char);
+                        }
+                    }
+
+                    self.advance(); // Consume the closing quote
+
+                    if quote == b'"' {
+                        self.current_token = Some(Token::Str(value));
+                    } else {
+                        self.ival = value.chars().next().unwrap_or('0') as i64;
+                        self.current_token = Some(Token::Char(self.ival as u8));
+                    }
                     return;
                 }
                 b':' => {
-                    self.current_token = Some(Token::Unknown(b':'));
                     return;
                 }
                 b';' => {
-                    self.current_token = Some(Token::Semi);
                     return;
                 }
                 b'}' => {
-                    self.current_token = Some(Token::CloseBrace);
                     return;
                 }
                 b'(' => {
-                    self.current_token = Some(Token::OpenParen);
                     return;
                 }
                 b')' => {
@@ -159,8 +191,13 @@ impl<'a> Lexer<'a> {
                     continue;
                 }
                 b'#' => {
-                    self.current_token = Some(Token::Unknown(b'#'));
-                    return;
+                    // Skip preprocessor directives
+                    while let Some(c) = self.advance() {
+                        if c == b'\n' {
+                            break;
+                        }
+                    }
+                    continue;
                 }
                 b'0'..=b'9' => {
                     let mut val = 0i64;
@@ -367,13 +404,13 @@ impl<'a> Lexer<'a> {
                 b'"' => {
                     // Parse string literal
                     let mut string = String::new();
-                    
+
                     // Process characters until closing quote
                     while let Some(c) = self.peek() {
                         if c == b'"' {
                             self.advance(); // Consume closing quote
                             break;
-                        } else if c == b'\\' {
+                        } else if c == b'\'' {
                             self.advance(); // Consume backslash
                             if let Some(esc) = self.peek() {
                                 match esc {
@@ -391,7 +428,7 @@ impl<'a> Lexer<'a> {
                             self.advance();
                         }
                     }
-                    
+
                     self.current_token = Some(Token::Str(string));
                     return;
                 }
@@ -485,7 +522,7 @@ mod tests {
         let src = "char else enum if int return sizeof while open read close printf malloc free memset memcmp exit void main";
         let tokens = lex_all(src);
         let expected = vec![
-            Token::CharType, 
+            Token::CharType,
             Token::Else,
             Token::Enum,
             Token::If,

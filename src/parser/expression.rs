@@ -46,13 +46,13 @@ impl<'a> Parser<'a> {
         println!("DEBUG: [parse_expression] current_class at end: {:?}", self.current_class);
         Ok(())
     }
-    
+
     // Precedence climbing algorithm with stop tokens
     fn parse_expr_with_precedence(&mut self, precedence: Precedence, stop_tokens: Option<&[Token]>) -> Result<(), String> {
         println!("DEBUG: [parse_expr_with_precedence] class at start: {:?}", self.current_class);
         // Parse the first operand
         self.parse_primary_expr(stop_tokens)?;
-        
+
         // Save current_class before operator parsing
         let saved_class = self.current_class.clone();
         // Keep processing operators while their precedence is high enough
@@ -63,10 +63,10 @@ impl<'a> Parser<'a> {
                     break;
                 }
             }
-            
+
             // Get the precedence of the next token
             let token_precedence = self.get_token_precedence(&token);
-            
+
             // If the next token is not an operator or has lower precedence, we're done
             if token_precedence < precedence {
                 break;
@@ -110,14 +110,14 @@ impl<'a> Parser<'a> {
                 Token::Cond => {
                     // Parse the middle expression (between ? and :)
                     self.parse_expr_with_precedence(Precedence::Assignment, stop_tokens)?;
-                    
+
                     // Expect and consume the colon
                     if let Some(Token::Unknown(b':')) = self.lexer.peek_token() {
                         self.lexer.next_token();
                     } else {
                         return Err("Expected ':' in conditional expression".to_string());
                     }
-                    
+
                     // Parse the right-hand side with precedence just below assignment
                     self.parse_expr_with_precedence(Precedence::Conditional, stop_tokens)?;
                 }
@@ -135,17 +135,17 @@ impl<'a> Parser<'a> {
                 }
             }
         }
-        
+
         // Final check - if we still don't have a class but saved_class was a function/sys, restore it
         if self.current_class.is_none() {
             if let Some(super::symbol_table::Class::Function) | Some(super::symbol_table::Class::Sys) = saved_class {
                 self.current_class = saved_class;
             }
         }
-        
+
         Ok(())
     }
-    
+
     // Parse primary expressions (literals, identifiers, parenthesized expressions)
     fn parse_primary_expr(&mut self, stop_tokens: Option<&[Token]>) -> Result<(), String> {
         println!("DEBUG: Entering parse_primary_expr, current token: {:?}", self.lexer.peek_token());
@@ -159,7 +159,7 @@ impl<'a> Parser<'a> {
                 }
             }
         }
-        
+
         if let Some(token) = self.lexer.peek_token() {
             match token.clone() {
                 // Handle type tokens during the second pass
@@ -185,7 +185,7 @@ impl<'a> Parser<'a> {
                     self.lexer.next_token();
                     return Ok(());
                 }
-                
+
                 // Character literal
                 Token::Char(c) => {
                     println!("DEBUG: Found character literal: {}", c);
@@ -194,7 +194,7 @@ impl<'a> Parser<'a> {
                     self.lexer.next_token();
                     return Ok(());
                 }
-                
+
                 // String literal
                 Token::Str(s) => {
                     println!("DEBUG: Found string literal: {}", s);
@@ -204,7 +204,7 @@ impl<'a> Parser<'a> {
                     self.lexer.next_token();
                     return Ok(());
                 }
-                
+
                 // Identifier
                 Token::Id(id) => {
                     println!("DEBUG: Found identifier: {}", id);
@@ -236,9 +236,9 @@ impl<'a> Parser<'a> {
                         return Err(format!("Undefined identifier: {}", id));
                     }
                 }
-                
+
                 // System function calls
-                Token::Printf | Token::Open | Token::Read | Token::Close | 
+                Token::Printf | Token::Open | Token::Read | Token::Close |
                 Token::Malloc | Token::Free | Token::Memset | Token::Memcmp | Token::Exit => {
                     // Get the function name from the token
                     let func_name = match &token {
@@ -253,9 +253,9 @@ impl<'a> Parser<'a> {
                         Token::Exit => "exit",
                         _ => unreachable!(),
                     };
-                    
+
                     println!("DEBUG: Found system function: {}", func_name);
-                    
+
                     // Look up the system function in the symbol table
                     if let Some(symbol) = self.symbol_table.lookup(func_name) {
                         self.current_id = Some(func_name.to_string());
@@ -284,7 +284,7 @@ impl<'a> Parser<'a> {
                         return Err(format!("System function not found in symbol table: {}", func_name));
                     }
                 }
-                
+
                 // sizeof operator
                 Token::Sizeof => {
                     self.lexer.next_token();
@@ -320,7 +320,7 @@ impl<'a> Parser<'a> {
                     }
                     return Ok(());
                 }
-                
+
                 // Parenthesized expression
                 Token::OpenParen => {
                     self.lexer.next_token();
@@ -331,27 +331,27 @@ impl<'a> Parser<'a> {
                         self.current_type = Some(Type::Int);
                         return Ok(());
                     }
-                    
+
                     // Parse the expression inside parentheses
                     self.parse_expr_with_precedence(Precedence::Assignment, Some(&[Token::CloseParen]))?;
-                    
+
                     // Expect closing parenthesis
                     if let Some(Token::CloseParen) = self.lexer.peek_token() {
                         self.lexer.next_token();
                     } else {
                         return Err("Expected ')' after expression".to_string());
                     }
-                    
+
                     return Ok(());
                 }
-                
+
                 // Unary operators
                 Token::Add | Token::Sub | Token::Mul | Token::And => {
                     let op = token.clone();
                     self.lexer.next_token();
                     // Parse the operand with unary precedence
                     self.parse_expr_with_precedence(Precedence::Unary, stop_tokens)?;
-                    
+
                     // Handle the unary operator
                     match op {
                         Token::Add => {
@@ -379,7 +379,7 @@ impl<'a> Parser<'a> {
                     }
                     return Ok(());
                 }
-                
+
                 _ => {
                     // Unknown token in expression
                     println!("DEBUG: [parse_primary_expr] current_class at end: {:?}", self.current_class);
@@ -433,7 +433,7 @@ impl<'a> Parser<'a> {
         println!("DEBUG: Parsing function call");
         self.lexer.next_token(); // consume '('
         let mut arg_count = 0;
-        
+
         // Special-case empty argument list
         if let Some(Token::CloseParen) = self.lexer.peek_token() {
             println!("DEBUG: No arguments in function call (empty argument list)");
@@ -444,7 +444,7 @@ impl<'a> Parser<'a> {
                 // Parse the full expression for this argument
                 self.parse_expr_with_precedence(Precedence::Assignment, Some(&[Token::Comma, Token::CloseParen]))?;
                 arg_count += 1;
-                
+
                 match self.lexer.peek_token() {
                     Some(Token::Comma) => {
                         println!("DEBUG: Found comma, consuming and continuing");
@@ -462,14 +462,14 @@ impl<'a> Parser<'a> {
                 }
             }
         }
-        
+
         // Update both argument count trackers
         self.current_value = arg_count;
         self.arg_count = arg_count as usize;
         println!("DEBUG: [parse_function_call] parsed {} args, class at end: {:?}", arg_count, self.current_class);
         Ok(())
     }
-    
+
     // Get the precedence of a token
     fn get_token_precedence(&self, token: &Token) -> Precedence {
         match token {

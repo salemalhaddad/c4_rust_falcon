@@ -13,14 +13,14 @@ pub enum Opcode {
     ENT,      // Enter function
     ADJ,      // Adjust stack
     LEV,      // Leave function
-    
+
     // Memory access
     LI,       // Load int
     LC,       // Load char
     SI,       // Store int
     SC,       // Store char
     PSH,      // Push value onto stack
-    
+
     // Arithmetic and logic
     OR,       // Bitwise OR
     XOR,      // Bitwise XOR
@@ -38,7 +38,7 @@ pub enum Opcode {
     MUL,      // Multiply
     DIV,      // Divide
     MOD,      // Modulo
-    
+
     // System calls
     OPEN,     // Open file
     READ,     // Read from file
@@ -65,20 +65,20 @@ impl CodeGenerator {
             data_offset: 0,
         }
     }
-    
+
     // Emit an instruction
     pub fn emit(&mut self, op: Opcode) {
         self.text.push(op as i32);
         self.text_offset += 1;
     }
-    
+
     // Emit an instruction with an immediate value
     pub fn emit_imm(&mut self, op: Opcode, val: i32) {
         self.emit(op);
         self.text.push(val);
         self.text_offset += 1;
     }
-    
+
     // Allocate space in the data segment
     pub fn allocate_data(&mut self, size: usize) -> usize {
         let offset = self.data_offset;
@@ -86,48 +86,48 @@ impl CodeGenerator {
         self.data.resize(self.data_offset, 0);
         offset
     }
-    
+
     // Store a string in the data segment and return its address
     pub fn store_string(&mut self, s: &str) -> usize {
         let addr = self.data.len();
-        
+
         println!("DEBUG: Storing string '{}' at address {}", s, addr);
         println!("DEBUG: String bytes: {:?}", s.as_bytes());
-        
+
         // Add the string to the data segment
         for byte in s.as_bytes() {
             self.data.push(*byte);
         }
-        
+
         // Add null terminator
         self.data.push(0);
-        
+
         println!("DEBUG: Data segment size after storing string: {}", self.data.len());
         println!("DEBUG: First 10 bytes of data segment: {:?}", &self.data[0..std::cmp::min(10, self.data.len())]);
-        
+
         addr
     }
-    
+
     // Generate code for a function
     pub fn gen_function(&mut self, parser: &mut Parser, _symbol: &Symbol) -> Result<(), String> {
         // Record the function's entry point
         let entry_point = self.text_offset;
-        
+
         // Emit ENT and reserve its slot for locals in one go
         self.emit_imm(Opcode::ENT, 0); // Placeholder for local variable space
-        
+
         // Parse function body
         parser.parse_compound_statement()?;
-        
+
         // Emit function epilogue
         self.emit(Opcode::LEV);
-        
+
         // Update the local variable space
         self.text[entry_point + 1] = parser.local_offset as i32;
-        
+
         Ok(())
     }
-    
+
     // Generate code for an expression
     pub fn gen_expression(&mut self, parser: &mut Parser) -> Result<(), String> {
         println!("CODEGEN DEBUG: Entering gen_expression, current token: {:?}", parser.lexer.peek_token());
@@ -189,7 +189,7 @@ impl CodeGenerator {
 
         Ok(())
     }
-    
+
     // Generate code for a statement
     pub fn gen_statement(&mut self, parser: &mut Parser) -> Result<(), String> {
         println!("DEBUG: [gen_statement] Entered gen_statement, current token: {:?}", parser.lexer.peek_token());
@@ -218,101 +218,101 @@ impl CodeGenerator {
         println!("DEBUG: [gen_statement] Exiting gen_statement, current token: {:?}", parser.lexer.peek_token());
         result
     }
-    
+
     // Generate code for if statement
     fn gen_if_statement(&mut self, parser: &mut Parser) -> Result<(), String> {
         // Consume 'if'
         parser.lexer.next_token();
-        
+
         // Expect '('
         if let Some(crate::lexer::Token::OpenParen) = parser.lexer.peek_token() {
             parser.lexer.next_token();
         } else {
             return Err("Expected '(' after 'if'".to_string());
         }
-        
+
         // Generate code for condition
         self.gen_expression(parser)?;
-        
+
         // Expect ')'
         if let Some(crate::lexer::Token::CloseParen) = parser.lexer.peek_token() {
             parser.lexer.next_token();
         } else {
             return Err("Expected ')' after if condition".to_string());
         }
-        
+
         // Emit branch if zero (condition is false)
         self.emit(Opcode::BZ);
         let else_jump = self.text_offset;
         self.emit_imm(Opcode::IMM, 0); // Placeholder for else jump address
-        
+
         // Generate code for then-branch
         self.gen_statement(parser)?;
-        
+
         // Check for else-branch
         if let Some(crate::lexer::Token::Else) = parser.lexer.peek_token() {
             parser.lexer.next_token();
-            
+
             // Emit jump to skip else-branch
             self.emit(Opcode::JMP);
             let end_jump = self.text_offset;
             self.emit_imm(Opcode::IMM, 0); // Placeholder for end jump address
-            
+
             // Update else jump address
             self.text[else_jump] = self.text_offset as i32;
-            
+
             // Generate code for else-branch
             self.gen_statement(parser)?;
-            
+
             // Update end jump address
             self.text[end_jump] = self.text_offset as i32;
         } else {
             // No else-branch, update else jump address to current position
             self.text[else_jump] = self.text_offset as i32;
         }
-        
+
         Ok(())
     }
-    
+
     // Generate code for while statement
     fn gen_while_statement(&mut self, parser: &mut Parser) -> Result<(), String> {
         // Consume 'while'
         parser.lexer.next_token();
-        
+
         // Record start of loop for condition
         let loop_start = self.text_offset;
-        
+
         // Expect '('
         if let Some(crate::lexer::Token::OpenParen) = parser.lexer.peek_token() {
             parser.lexer.next_token();
         } else {
             return Err("Expected '(' after 'while'".to_string());
         }
-        
+
         // Generate code for condition
         self.gen_expression(parser)?;
-        
+
         // Expect ')'
         if let Some(crate::lexer::Token::CloseParen) = parser.lexer.peek_token() {
             parser.lexer.next_token();
         } else {
             return Err("Expected ')' after while condition".to_string());
         }
-        
+
         // Emit branch if zero (condition is false)
         self.emit(Opcode::BZ);
         let end_jump = self.text_offset;
         self.emit_imm(Opcode::IMM, 0); // Placeholder for end jump address
-        
+
         // Generate code for loop body
         self.gen_statement(parser)?;
-        
+
         // Emit jump back to condition
         self.emit_imm(Opcode::JMP, loop_start as i32);
-        
+
         // Update end jump address
         self.text[end_jump] = self.text_offset as i32;
-        
+
         Ok(())
     }
     fn gen_return_statement(&mut self, parser: &mut Parser) -> Result<(), String> {
@@ -403,16 +403,16 @@ impl CodeGenerator {
     }
     fn gen_expression_statement(&mut self, parser: &mut Parser) -> Result<(), String> {
         println!("CODEGEN DEBUG: Entering gen_expression_statement");
-        
+
         // Empty statement (just a semicolon)
         if let Some(crate::lexer::Token::Semi) = parser.lexer.peek_token() {
             parser.lexer.next_token();
             return Ok(());
         }
-        
+
         // Generate code for the full expression
         self.gen_expression(parser)?;
-        
+
         // Expect ';'
         if let Some(crate::lexer::Token::Semi) = parser.lexer.peek_token() {
             parser.lexer.next_token();
