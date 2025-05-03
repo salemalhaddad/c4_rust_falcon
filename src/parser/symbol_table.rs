@@ -70,7 +70,7 @@ impl SymbolTable {
             name: name.to_string(),
             class: Class::Sys,
             typ: ret_type,
-            val: 0, // Will be set to the appropriate system call ID
+            val: 0, 
             offset: 0,
         };
         self.symbols.insert(name.to_string(), symbol);
