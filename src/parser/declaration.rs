@@ -30,7 +30,7 @@ impl<'a> Parser<'a> {
         // If we didn't find an identifier or it wasn't in the symbol table,
         // parse as a new declaration
         self.parse_type()?;
-
+		
         println!("DEBUG: After parse_type, current token: {:?}", self.lexer.peek_token());
 
         // Parse declarator

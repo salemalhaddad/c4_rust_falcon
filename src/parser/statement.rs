@@ -123,6 +123,15 @@ impl<'a> Parser<'a> {
                 self.current_value = n;
                 self.current_type = Some(super::types::Type::Int);
                 self.lexer.next_token();
+
+				// Check for and consume semicolon right away
+				if let Some(Token::Semi) = self.lexer.peek_token() {
+					self.lexer.next_token();  // Consume the semicolon
+					return Ok(());
+				} else {
+					return Err(format!("Expected ';' after return statement, found: {:?}", self.lexer.peek_token()));
+				}
+
             } else {
                 self.parse_expression()?;
             }
