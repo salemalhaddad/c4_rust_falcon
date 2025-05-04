@@ -63,6 +63,61 @@ cargo test
 
 ---
 
+## 🌟 Additional Features
+
+Our Rust implementation of C4 introduces several enhancements over the original C version:
+
+1. **Enhanced Type System**
+   - Support for both `int` and `char` types
+   - Pointer types with `Type::Ptr`
+   - Type size calculations (1 byte for char, 4 bytes for int/pointer)
+   - Type checking and conversion
+
+2. **Improved Symbol Table Management**
+   - Hierarchical scope system with `SymbolTable` and `scopes` stack
+   - Better symbol lookup with `lookup_current_scope` and `lookup`
+   - Support for different symbol classes: Global, Local, Function, Sys
+   - Better memory management for local variables
+
+3. **Enhanced Expression Parsing**
+   - Full operator precedence support (14 levels from assignment to primary)
+   - Better handling of function calls and arguments
+   - Support for postfix operators (++, --, [])
+   - Improved error handling and debugging
+
+4. **Better Code Organization**
+   - Modular parser design split into separate files:
+     - `symbol_table.rs`: Symbol table management
+     - `types.rs`: Type system
+     - `declaration.rs`: Declaration parsing
+     - `expression.rs`: Expression parsing
+     - `statement.rs`: Statement parsing
+
+5. **Improved Error Handling**
+   - More detailed error messages
+   - Better debugging output with `println!("DEBUG: ...")`
+   - Better handling of edge cases and syntax errors
+
+6. **Enhanced Memory Management**
+   - Better tracking of local variable offsets
+   - Proper scope management with `enter_scope` and `exit_scope`
+   - Better handling of function parameters
+
+7. **Improved System Function Support**
+   - Built-in support for system functions:
+     - `open`, `read`, `close` for file operations
+     - `printf` for formatted output
+     - `malloc`, `free` for memory management
+     - `memset`, `memcmp` for memory operations
+     - `exit` for program termination
+
+8. **Better Code Generation**
+   - More efficient code generation
+   - Better handling of function calls and arguments
+   - Improved memory management in the virtual machine
+
+---
+
 ## ✅ To-Do List
 
 ### Phase 1: Setup & Planning
