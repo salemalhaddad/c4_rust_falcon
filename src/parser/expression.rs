@@ -453,8 +453,14 @@ impl<'a> Parser<'a> {
                     Some(Token::CloseParen) => {
                         println!("DEBUG: Found closing parenthesis, end of arguments");
                         self.lexer.next_token(); // consume ')'
+                        println!("DEBUG: After closing parenthesis, next token: {:?}", self.lexer.peek_token());
                         break;
                     },
+					Some(Token::Semi) => {
+						self.lexer.next_token();
+						println!("DEBUG: Found semicolon, end of arguments");
+						break;
+					},
                     other => {
                         println!("DEBUG: Expected ',' or ')' but found: {:?}", other);
                         return Err(format!("Expected ',' or ')' in function call, found: {:?}", other));

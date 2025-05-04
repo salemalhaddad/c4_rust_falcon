@@ -133,7 +133,6 @@ impl<'a> Lexer<'a> {
 
                     // Process characters until closing quote
                     while let Some(c) = self.peek() {
-                        self.advance(); // Consume the character
                         if c == quote {
                             break;
                         } else if c == b'\\' {
@@ -148,16 +147,19 @@ impl<'a> Lexer<'a> {
                                     b'\\' => value.push('\\'),
                                     _ => value.push(esc as char),
                                 }
+                                self.advance(); // Consume the escape character
                             }
                         } else {
                             value.push(c as char);
+                            self.advance(); // Consume the character
                         }
                     }
 
                     self.advance(); // Consume the closing quote
 
                     if quote == b'"' {
-                        self.current_token = Some(Token::Str(value));
+                        self.current_token = Some(Token::Str(value.clone()));
+					println!("DEBUG: String literal: {}", value.escape_default());
                     } else {
                         self.ival = value.chars().next().unwrap_or('0') as i64;
                         self.current_token = Some(Token::Char(self.ival as u8));
@@ -169,6 +171,7 @@ impl<'a> Lexer<'a> {
                     return;
                 }
                 b';' => {
+					self.current_token = Some(Token::Semi);
                     return;
                 }
                 b'}' => {
@@ -405,37 +408,6 @@ impl<'a> Lexer<'a> {
                 }
                 b'?' => {
                     self.current_token = Some(Token::Cond); // Conditional ?
-                    return;
-                }
-                b'"' => {
-                    // Parse string literal
-                    let mut string = String::new();
-
-                    // Process characters until closing quote
-                    while let Some(c) = self.peek() {
-                        if c == b'"' {
-                            self.advance(); // Consume closing quote
-                            break;
-                        } else if c == b'\'' {
-                            self.advance(); // Consume backslash
-                            if let Some(esc) = self.peek() {
-                                match esc {
-                                    b'n' => string.push('\n'),
-                                    b't' => string.push('\t'),
-                                    b'r' => string.push('\r'),
-                                    b'\\' => string.push('\\'),
-                                    b'"' => string.push('"'),
-                                    _ => string.push(esc as char),
-                                }
-                                self.advance();
-                            }
-                        } else {
-                            string.push(c as char);
-                            self.advance();
-                        }
-                    }
-
-                    self.current_token = Some(Token::Str(string));
                     return;
                 }
                 _ => {

@@ -170,6 +170,7 @@ impl<'a> Parser<'a> {
         println!("DEBUG: Parsing statements in compound statement");
         while let Some(token) = self.lexer.peek_token() {
             if token == Token::CloseBrace {
+                self.lexer.next_token(); // Consume the closing brace
                 break;
             }
 
@@ -217,13 +218,7 @@ impl<'a> Parser<'a> {
             }
         }
 
-        // Expect '}'
-        if let Some(Token::CloseBrace) = self.lexer.peek_token() {
-            println!("DEBUG: Found closing brace, exiting compound statement");
-            self.lexer.next_token();
-        } else {
-            return Err("Expected '}' at end of compound statement".to_string());
-        }
+        println!("DEBUG: Found closing brace, exiting compound statement");
 
         // Exit scope
         println!("DEBUG: Exited scope");

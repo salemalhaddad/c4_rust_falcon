@@ -133,10 +133,13 @@ mod tests {
     #[test]
     fn test_hello_world() {
         let source = r#"
-            int main() {
-                printf("Hello, World!\n");
-                return 0;
-            }
+            #include <stdio.h>
+
+			int main() {
+				printf("Hello, World!\n");
+				return 0;
+			}
+
         "#;
 
         let result = compile_and_run(source.as_bytes(), true);
