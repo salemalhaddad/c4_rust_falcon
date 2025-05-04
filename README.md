@@ -19,20 +19,33 @@ THIS IS A WORKING COMPILER FOR SIMPLE HELLO WORLD PROGRAMS WHERE ONLY PRINTS  WO
 c4_rust/
 ├── Cargo.toml             # Rust project config
 ├── README.md              # Project documentation
-├── src/
-│   ├── main.rs            # Entry point
-│   ├── lexer.rs           # Tokenizer for C code
-│   ├── parser.rs          # Parses tokens into AST
-│   ├── vm.rs              # Virtual machine executing instructions
-│   └── utils.rs           # Common utilities
-├── examples/
-│   └── c4.c               # Original C4 code for testing
-├── tests/
-│   ├── lexer_tests.rs     # Unit tests for lexer
-│   ├── parser_tests.rs    # Unit tests for parser
-│   └── vm_tests.rs        # Unit tests for VM
-├── target/                # Build output (auto-generated)
-└── c4_rust_comparison.pdf # Comparison report
+├── benchmarks/            # Benchmark scripts and results
+├── c4                    # Original C4 compiler binary
+├── c4_rust_comparison.pdf # Comparison report
+├── examples/              # Example C programs
+│   ├── hello.c           # Hello world example
+│   └── factorial.c       # Factorial example
+├── src/                  # Source code
+│   ├── ast.rs            # Abstract Syntax Tree definitions
+│   ├── c4                # Original C4 source
+│   ├── c4.rs             # Original C4 source
+│   ├── c4_original       # Original C4 source
+│   ├── codegen.rs        # Code generation module
+│   ├── lexer.rs          # Lexer implementation
+│   ├── main.rs           # Entry point
+│   ├── parser/           # Parser module
+│   │   ├── declaration.rs # Declaration parsing
+│   │   ├── expression.rs # Expression parsing
+│   │   ├── mod.rs       # Parser module definition
+│   │   ├── statement.rs  # Statement parsing
+│   │   └── symbol_table.rs # Symbol table management
+│   ├── utils.rs          # Utility functions
+│   └── vm.rs             # Virtual machine implementation
+├── tests/               # Test files
+│   ├── lexer_tests.rs    # Lexer unit tests
+│   ├── parser_tests.rs   # Parser unit tests
+│   └── vm_tests.rs       # VM unit tests
+└── target/              # Build output (auto-generated)
 ```
 
 ---
