@@ -24,7 +24,6 @@ c4_rust/
 │   ├── lexer.rs           # Tokenizer for C code
 │   ├── parser.rs          # Parses tokens into AST
 │   ├── vm.rs              # Virtual machine executing instructions
-│   ├── ast.rs             # (Optional) Abstract Syntax Tree definitions
 │   └── utils.rs           # Common utilities
 ├── examples/
 │   └── c4.c               # Original C4 code for testing
@@ -121,38 +120,36 @@ Our Rust implementation of C4 introduces several enhancements over the original 
 ## ✅ To-Do List
 
 ### Phase 1: Setup & Planning
-- [x] Create GitHub repo: `c4_rust_<team_name>`
+- [x] Create GitHub repo: `c4_rust_falcon`
 - [x] Setup `Cargo` project with `cargo init`
 - [x] Add `.gitignore` (Rust template)
 - [x] Upload `c4.c` to `examples/` for testing
-- [ ] Divide responsibilities among team
+- [x] Divide responsibilities among team
 
 ### Phase 2: Component Translation
-- [ ] Implement `lexer.rs` using pattern matching and enums
-- [ ] Implement `parser.rs` with idiomatic AST structure
-- [ ] Implement `vm.rs` using safe memory management
-- [ ] Wire components in `main.rs`
+- [x] Implement `lexer.rs` using pattern matching and enums
+- [x] Implement `parser.rs` with idiomatic Rust parser structure
+- [x] Implement `vm.rs` using safe memory management
+- [x] Wire components in `main.rs`
 
 ### Phase 3: Testing
-- [ ] Add unit tests using `#[test]` for each module
-- [ ] Achieve minimum 70% test coverage
-- [ ] Use `cargo test` consistently
-- [ ] Optional: Add performance benchmarks
+- [x] Add unit tests using `#[test]` for each module
+- [x] Achieve minimum 70% test coverage
+- [x] Use `cargo test` consistently
+- [x] Add performance benchmarks
 
 ### Phase 4: Documentation
-- [ ] Use `///` comments for public functions and structs
-- [ ] Generate and review docs via `cargo doc`
-- [ ] Write `c4_rust_comparison.pdf`
+- [x] Generate and review docs via `cargo doc`
+- [x] Write `c4_rust_comparison.pdf`
 
 ### Phase 5: Collaboration & Submission
-- [ ] Use branches + PRs for major changes
-- [ ] Ensure all members contribute to commits
-- [ ] Zip and submit as `c4_rust_submission_<team_name>.zip`
+- [x] Use branches + PRs for major changes
+- [x] Ensure all members contribute to commits
+- [x] Zip and submit as `c4_rust_submission_falcon.zip`
 
 ### Bonus (Optional)
-- [ ] Implement enhanced error messages with line/column tracking
-- [ ] Add floating-point arithmetic support
-- [ ] Improve diagnostic outputs (tokens, AST, bytecode dump)
+- [x] Implement enhanced error messages with line/column tracking
+- [x] Improve diagnostic outputs (tokens, bytecode dump)
 
 ---
 
